@@ -1,0 +1,32 @@
+Options +FollowSymLinks
+
+<FilesMatch ".*\.php.*$">
+        order deny,allow
+        deny from all
+</FilesMatch>
+
+<Files index.php>
+        allow from all
+</Files>
+
+RewriteEngine On
+
+RewriteCond %{QUERY_STRING} proc/self/environ [OR]
+RewriteCond %{QUERY_STRING} mosConfig_[a-zA-Z_]{1,21}(=|\%3D) [OR]
+RewriteCond %{QUERY_STRING} base64_encode[^(]*\([^)]*\) [OR]
+RewriteCond %{QUERY_STRING} (<|%3C)([^s]*s)+cript.*(>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2})
+RewriteRule .* index.php [F]
+
+RewriteCond %{HTTP_HOST} ^.*incipit\.webfactional\.com.*$
+RewriteCond %{HTTP_USER_AGENT} (Googlebot|bot|Bot|Bing|spider|crawler)
+RewriteRule .* http://www.incipitonline.it/ [R=301,L]
+
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+RewriteCond %{REQUEST_URI} !^/index\.php
+RewriteCond %{REQUEST_URI} /component/|(/[^.]*|\.(php|html?|feed|pdf|vcf|raw))$ [NC]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule .* index.php [L]
